@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'deta.pk'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'deta.pk.PekaSE2';
+}
+
+dependencies {
+    implementation 'com.formdev:flatlaf:2.6'
+    implementation 'com.miglayout:miglayout-swing:11.0'
+
+    implementation 'org.tinylog:tinylog-api:2.6.0'
+    implementation 'org.tinylog:tinylog-impl:2.6.0'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0-rc2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0-rc2'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0-rc3'
+}
+
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes "Main-Class": "deta.pk.PekaSE2"
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
