@@ -269,14 +269,15 @@ public class ImagePanel extends PekaSE2Panel implements ChangeListener {
                             loadedSprite.setImage(GFXUtils.makeTransparent(img));
                             loadedSprite.setFramesList(GFXUtils.cutFrames(img, loadedSprite.getFramesAmount(), loadedSprite.getFrameX(), loadedSprite.getFrameY(), loadedSprite.getFrameWidth(), loadedSprite.getFrameHeight()));
                             spriteSheetPanel.setImage(loadedSprite.getImage());
+                            
+                            loadedSprite.setColor(color);
+                            
+                            spriteEditModel.setSpriteFrames(loadedSprite.getFramesList());
                         } catch (IOException ex) {
                             Logger.warn(ex);
                         }
                     }
                     
-                    loadedSprite.setColor(color);
-                    
-                    spriteEditModel.setSpriteFrames(loadedSprite.getFramesList());
                     spriteSheetPanel.repaint();
                 }
             }
@@ -328,7 +329,7 @@ public class ImagePanel extends PekaSE2Panel implements ChangeListener {
         
         spFrameAmount.setValue(0);
 
-        cbColors.setSelectedIndex(0);
+        if (cbColors.getItemCount() > 0) cbColors.setSelectedIndex(0);
         
         tfImage.setText("");
         

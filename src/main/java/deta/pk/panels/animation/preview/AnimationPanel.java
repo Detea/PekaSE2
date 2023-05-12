@@ -159,46 +159,48 @@ public final class AnimationPanel extends JPanel {
     }
     
     private void setupAnimation(PK2Sprite sprite, int animationIndex) {
-        var animation = sprite.getAnimationsList().get(animationIndex);
-        
-        cbLoop.setSelected(animation.loop());
-        
-        AnimationContainer.setFramesList(sprite.getFramesList());
-        
-        var sequence = animation.getSequence();
-        for (int i = 0; i < sequence.length; i++) {
-            containers.get(i).setFrameNumber(sequence[i]);
-            
-            // If the frame is not 0, meaning empty, we set the image and use the image's dimensions to set the frame preview
-            if (sequence[i] > 0 && ((sequence[i] - 1) < sprite.getFramesList().size())) {
-                containers.get(i).setImage(sprite.getFramesList().get(sequence[i] - 1));
-            } else { // Otherwise we only set the dimensions of the frame preview panel to the first frame's dimensions, so that all panels are the same size. No matter if they are empty or not.
-                containers.get(i).setImage(null);
-
-                if (!sprite.getFramesList().isEmpty()) {
-                    containers.get(i).setFramePreviewDimensions(sprite.getFramesList().get(0).getWidth(), sprite.getFramesList().get(0).getHeight());
-                } else {
-                    containers.get(i).setFramePreviewDimensions(32, 32);
-                }
-            }
-        }
-        
-        var frame0 = animation.getSequence()[0];
-        if (frame0 > sprite.getFramesList().size()) {
-            animationPreview.setImage(null);
-        } else {
-            if (frame0 >= 1) { // If the first frame in the animation sequence is greater than 0, show whatever frame it contains
-                animationPreview.setImage(sprite.getFramesList().get(frame0 - 1));
-            } else { // Otherwise show the first frame of the animation
-                if (!sprite.getFramesList().isEmpty()) {
-                    animationPreview.setImage(sprite.getFramesList().get(frame0));
-                } else {
-                    animationPreview.setImage(null);
-                }
-            }
-        }
-        
-        if (!sprite.getFramesList().isEmpty()) setPreferredSize(new Dimension((int) getPreferredSize().getWidth(), sprite.getFramesList().get(0).getHeight()));
+       if (sprite != null) {
+           var animation = sprite.getAnimationsList().get(animationIndex);
+           
+           cbLoop.setSelected(animation.loop());
+           
+           AnimationContainer.setFramesList(sprite.getFramesList());
+           
+           var sequence = animation.getSequence();
+           for (int i = 0; i < sequence.length; i++) {
+               containers.get(i).setFrameNumber(sequence[i]);
+               
+               // If the frame is not 0, meaning empty, we set the image and use the image's dimensions to set the frame preview
+               if (sequence[i] > 0 && ((sequence[i] - 1) < sprite.getFramesList().size())) {
+                   containers.get(i).setImage(sprite.getFramesList().get(sequence[i] - 1));
+               } else { // Otherwise we only set the dimensions of the frame preview panel to the first frame's dimensions, so that all panels are the same size. No matter if they are empty or not.
+                   containers.get(i).setImage(null);
+                   
+                   if (!sprite.getFramesList().isEmpty()) {
+                       containers.get(i).setFramePreviewDimensions(sprite.getFramesList().get(0).getWidth(), sprite.getFramesList().get(0).getHeight());
+                   } else {
+                       containers.get(i).setFramePreviewDimensions(32, 32);
+                   }
+               }
+           }
+           
+           var frame0 = animation.getSequence()[0];
+           if (frame0 > sprite.getFramesList().size()) {
+               animationPreview.setImage(null);
+           } else {
+               if (frame0 >= 1) { // If the first frame in the animation sequence is greater than 0, show whatever frame it contains
+                   animationPreview.setImage(sprite.getFramesList().get(frame0 - 1));
+               } else { // Otherwise show the first frame of the animation
+                   if (!sprite.getFramesList().isEmpty()) {
+                       animationPreview.setImage(sprite.getFramesList().get(frame0));
+                   } else {
+                       animationPreview.setImage(null);
+                   }
+               }
+           }
+           
+           if (!sprite.getFramesList().isEmpty()) setPreferredSize(new Dimension((int) getPreferredSize().getWidth(), sprite.getFramesList().get(0).getHeight()));
+       }
     }
     
     public void reset() {
