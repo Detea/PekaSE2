@@ -90,6 +90,8 @@ public class AnimationsEditPanel extends PekaSE2Panel implements SpriteFramesCha
         pnlFramerate.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIManager.getColor("Component.borderColor")));
         
         var scrollPane = new JScrollPane(framePanelsPanel);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(8);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(8);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         
@@ -106,9 +108,10 @@ public class AnimationsEditPanel extends PekaSE2Panel implements SpriteFramesCha
     }
     
     private void addAnimationPanel(String title) {
-        animationPanelList.add(new AnimationPanel(model, settings));
+        var ap = new AnimationPanel(model, settings);
+        animationPanelList.add(ap);
         
-        tpAnimations.add(new JScrollPane(animationPanelList.get(animationPanelList.size() - 1)), title);
+        tpAnimations.add(ap, title);
     }
     
     @Override

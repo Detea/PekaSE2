@@ -41,7 +41,6 @@ public class AnimationFramePreview extends JPanel {
     
     public void setData(BufferedImage frame, int index) {
         frameImage.setImage(frame);
-        frameImage.setMinimumSize(new Dimension(frame.getWidth() + frame.getWidth() / 2, frame.getHeight() + frame.getHeight() / 2));
         
         lblFrameNumber.setText(Integer.toString(index));
     }

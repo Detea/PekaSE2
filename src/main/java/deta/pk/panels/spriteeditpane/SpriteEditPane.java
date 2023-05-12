@@ -95,7 +95,10 @@ public class SpriteEditPane extends JTabbedPane {
     
     private void addPanel(PekaSE2Panel panel, String name, boolean wrapInScrollPane) {
         if (wrapInScrollPane) {
-            add(new JScrollPane(panel), name);
+            var sp = new JScrollPane(panel);
+            sp.getVerticalScrollBar().setUnitIncrement(8);
+            
+            add(sp, name);
         } else {
             add(panel, name);
         }
