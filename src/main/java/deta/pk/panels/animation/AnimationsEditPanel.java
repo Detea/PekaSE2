@@ -108,12 +108,10 @@ public class AnimationsEditPanel extends PekaSE2Panel implements SpriteFramesCha
     }
     
     private void addAnimationPanel(String title) {
-        animationPanelList.add(new AnimationPanel(model, settings));
+        var ap = new AnimationPanel(model, settings);
+        animationPanelList.add(ap);
         
-        var scrollPane = new JScrollPane(animationPanelList.get(animationPanelList.size() - 1));
-        scrollPane.getVerticalScrollBar().setUnitIncrement(8);
-        scrollPane.getHorizontalScrollBar().setUnitIncrement(8);
-        tpAnimations.add(scrollPane, title);
+        tpAnimations.add(ap, title);
     }
     
     @Override

@@ -100,8 +100,12 @@ public final class AnimationPanel extends JPanel {
         var pnlCenter = new JPanel();
         pnlCenter.setLayout(new MigLayout());
         
+        var spContainer = new JScrollPane(containerPanel);
+        spContainer.getVerticalScrollBar().setUnitIncrement(8);
+        spContainer.getHorizontalScrollBar().setUnitIncrement(8);
+        
         pnlCenter.add(pnlPreview, "dock west");
-        pnlCenter.add(containerPanel, "dock center");
+        pnlCenter.add(spContainer, "dock center");
         
         add(pnlCenter, "dock center");
         add(pnlFrameActions, "dock south");
