@@ -41,36 +41,37 @@ public final class FrameImagePanel extends JPanel {
         setBackground(Color.GRAY);
 
         if (prefWidth > 0) {
-            setPreferredSize(new Dimension(prefWidth, prefHeight));
-        } /*else {
-            setMinimumSize(new Dimension(128, 128));
-            setPreferredSize(new Dimension(128, 128));
-        }*/
+            setPreviewSize(prefWidth, prefHeight);
+        }
     }
     
     public void setMaxSize(int width, int height) {
         this.maxWidth = width;
         this.maxHeight = height;
-        
-        /*
-        setMinimumSize(new Dimension(width, height));
-        setPreferredSize(new Dimension(width, height));
-        setMaximumSize(new Dimension(width, height));*/
     }
     
     public void setImage(BufferedImage img) {
         this.image = img;
         
-        if (img != null) {
-            setPreviewSize(image.getWidth(), image.getHeight());
+        if (prefWidth == 0 || prefHeight == 0) {
+            if (img != null) {
+                setPreviewSize(image.getWidth(), image.getHeight());
+            } else {
+                setPreviewSize(minWidth, minHeight);
+            }
         } else {
-            setPreviewSize(minWidth, minHeight);
+            setPreviewSize(prefWidth, prefHeight);
         }
         
         revalidate();
         repaint();
     }
     
+    /**
+     * Sets the panel's width and height to width + (width / 2), height + (height / 2)
+     * @param width
+     * @param height
+     */
     public void setPreviewSize(int width, int height) {
         if (width < minWidth) width = minWidth;
         if (height < minHeight) height = minHeight;
@@ -82,10 +83,12 @@ public final class FrameImagePanel extends JPanel {
             height = (int) (height * ratio);
         }
         
-        int w = width + (width / 2);
-        int h = height + (height / 2);
+        int w = width + (width / 3);
+        int h = height + (height / 3);
 
         setPreferredSize(new Dimension(w, h));
+        setMinimumSize(new Dimension(w, h));
+        setMaximumSize(new Dimension(w, h));
     }
     
     public void paintComponent(Graphics g) {

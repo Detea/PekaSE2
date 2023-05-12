@@ -56,9 +56,6 @@ public class SpriteFileChooser extends JFileChooser implements PropertyChangeLis
         previewPanel = new JPanel();
         
         imagePanel = new FrameImagePanel(192, 192, 192, 192);
-        imagePanel.setMinimumSize(new Dimension(192, 192));
-        imagePanel.setPreferredSize(new Dimension(192, 192));
-        imagePanel.setMaximumSize(new Dimension(192, 192));
         
         lblName = new JLabel("Name:");
         lblNameVal = new JLabel();

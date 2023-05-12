@@ -11,6 +11,7 @@ import deta.pk.util.AnimationManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -192,6 +193,8 @@ public final class AnimationPanel extends JPanel {
                 }
             }
         }
+        
+        if (!sprite.getFramesList().isEmpty()) setPreferredSize(new Dimension((int) getPreferredSize().getWidth(), sprite.getFramesList().get(0).getHeight()));
     }
     
     public void reset() {
