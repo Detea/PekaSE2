@@ -50,6 +50,8 @@ public final class FrameImagePanel extends JPanel {
         this.maxHeight = height;
     }
     
+    private int lastWidth = 0;
+    private int lastHeight = 0;
     public void setImage(BufferedImage img) {
         this.image = img;
         
@@ -57,7 +59,7 @@ public final class FrameImagePanel extends JPanel {
             if (img != null) {
                 setPreviewSize(image.getWidth(), image.getHeight());
             } else {
-                setPreviewSize(minWidth, minHeight);
+                setPreviewSize(lastWidth, lastHeight);
             }
         } else {
             setPreviewSize(prefWidth, prefHeight);
@@ -83,6 +85,10 @@ public final class FrameImagePanel extends JPanel {
             height = (int) (height * ratio);
         }
         
+        lastWidth = width;
+        lastHeight = height;
+        
+        // Add 1/3 of the width/height to the panels size to add padding around the image
         int w = width + (width / 3);
         int h = height + (height / 3);
 
