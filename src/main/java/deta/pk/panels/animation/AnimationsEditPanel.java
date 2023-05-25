@@ -204,8 +204,6 @@ public class AnimationsEditPanel extends PekaSE2Panel implements SpriteFramesCha
             var anim = new PK2SpriteAnimation(sequence, frames, loop);
             sprite.getAnimationsList().set(i, anim);
         }
-        
-        updateFrames(sprite.getFramesList());
     }
     
     @Override
