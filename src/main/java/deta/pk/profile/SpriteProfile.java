@@ -4,16 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class SpriteProfile {
-    private Map<Integer, String> aiPatternMap = new HashMap<>();
-    private Map<Integer, String> damageMap = new HashMap<>();
-    private Map<Integer, String> typeMap = new HashMap<>();
-    private Map<Integer, String> destructionEffects = new HashMap<>();
+    private final Map<Integer, String> aiPatternMap = new HashMap<>();
+    private final Map<Integer, String> damageMap = new HashMap<>();
+    private final Map<Integer, String> typeMap = new HashMap<>();
+    private final Map<Integer, String> destructionEffects = new HashMap<>();
     
-    private Map<Integer, String> colorMap = new HashMap<>();
+    private final Map<Integer, String> colorMap = new HashMap<>();
     
-    private Map<Integer, String> destructionType = new HashMap<>();
+    private final Map<Integer, String> destructionType = new HashMap<>();
     
-    private Map<Integer, String> immunityMap = new HashMap<>();
+    private final Map<Integer, String> immunityMap = new HashMap<>();
     
     private int animationsAmount = 10;
     
