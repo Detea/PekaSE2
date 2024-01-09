@@ -1,5 +1,6 @@
 package deta.pk.panels.spriteeditpane;
 
+import deta.pk.FileFormat;
 import deta.pk.listener.UnsavedChangesListener;
 import deta.pk.panels.PekaSE2Panel;
 import deta.pk.panels.ailists.AIListPanel;
@@ -45,7 +46,7 @@ public class SpriteEditPane extends JTabbedPane {
         
         imagePanel = new ImagePanel(model, settings);
         animationsPanel = new AnimationsEditPanel(settings);
-        aiListPanel = new AIListPanel(settings);
+        aiListPanel = new AIListPanel(settings, FileFormat.GRETA);
         soundsPanel = new SoundsPanel(settings);
         attacksPanel = new AttacksPanel(settings);
         propertiesPanel = new PropertiesPanel(settings);
@@ -54,7 +55,7 @@ public class SpriteEditPane extends JTabbedPane {
         
         addPanel(imagePanel, "Image");
         addPanel(animationsPanel, "Animations");
-        addPanel(aiListPanel, "AI");
+        addPanel(aiListPanel, "AI", true);
         addPanel(attacksPanel, "Attack");
         addPanel(soundsPanel, "Sounds");
         addPanel(propertiesPanel, "Properties", true);

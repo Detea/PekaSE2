@@ -1,5 +1,6 @@
 package deta.pk.panels.ailists;
 
+import deta.pk.FileFormat;
 import deta.pk.listener.UnsavedChangesListener;
 import deta.pk.panels.PekaSE2Panel;
 import deta.pk.profile.SpriteProfile;
@@ -13,6 +14,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.DateFormatter;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,26 +25,69 @@ public class AIListPanel extends PekaSE2Panel {
     
     private List<JComboBox<String>> cbAiList;
     private List<JSpinner> spAiList;
+    private List<JPanel> aiPanelList;
     
     private List<Integer> aiIdList;
+    private List<String> aiTextList;
     
-    public AIListPanel(Settings settings) {
+    private final FileFormat fileFormat;
+    
+    private UnsavedChangesListener unsavedChangesListener;
+    
+    public AIListPanel(Settings settings, FileFormat fileFormat) {
         this.settings = settings;
-        
-        setLayout(new MigLayout("flowy, alignx 50%"));
         
         cbAiList = new ArrayList<>();
         spAiList = new ArrayList<>();
+        aiPanelList = new ArrayList<>();
+        
+        this.fileFormat = fileFormat;
         
         setup();
     }
     
     private void setup() {
+        setLayout(new MigLayout("flowy, align center"));
+        
+        if (fileFormat == FileFormat.GRETA) {
+            JButton btnAdd = new JButton("Add AI");
+            btnAdd.addActionListener(e -> {
+                addComboBox(cbAiList.size() + 1);
+            
+                unsavedChangesListener.stateChanged(null);
+            });
+            
+            JButton btnRemove = new JButton("Remove Last");
+            btnRemove.addActionListener(e -> {
+                if (aiPanelList.size() > 1) {
+                    cbAiList.remove((cbAiList.size() - 1));
+                    spAiList.remove((spAiList.size() - 1));
+                    
+                    JPanel pnl = aiPanelList.get(aiPanelList.size() - 1);
+                    remove(pnl);
+                    
+                    aiPanelList.remove(aiPanelList.size() - 1);
+                    
+                    revalidate();
+                    repaint();
+                    
+                    unsavedChangesListener.stateChanged(null);
+                }
+            });
+            
+            JPanel pnlButtons = new JPanel();
+            pnlButtons.setLayout(new MigLayout("flowx"));
+            pnlButtons.add(btnAdd);
+            pnlButtons.add(btnRemove);
+            
+            add(pnlButtons);
+        }
+        
         for (int i = 0; i < 10; i++) {
             addComboBox(i);
         }
     }
-    
+
     public void setSprite(PK2Sprite sprite) {
         for (int i = 0; i < sprite.getAiList().length; i++) {
             cbAiList.get(i).setSelectedItem(settings.getSpriteProfile().getAiPatternMap().get(sprite.getAiList()[i]));
@@ -71,14 +116,13 @@ public class AIListPanel extends PekaSE2Panel {
     @Override
     public void setProfileData(SpriteProfile profile) {
         aiIdList = profile.getAiPatternMap().keySet().stream().toList();
-        
-        var aiList = profile.getAiPatternMap().entrySet().stream().toList();
+        aiTextList = profile.getAiPatternMap().values().stream().toList();
         
         for (var cb : cbAiList) {
             cb.removeAllItems();
             
-            for (var item : aiList) {
-                cb.addItem(item.getValue());
+            for (var item : aiTextList) {
+                cb.addItem(item);
             }
         }
         
@@ -89,6 +133,8 @@ public class AIListPanel extends PekaSE2Panel {
     
     @Override
     public void setUnsavedChangesListener(UnsavedChangesListener listener) {
+        this.unsavedChangesListener = listener;
+        
         for (int i = 0; i < 10; i++) {
             cbAiList.get(i).addActionListener(listener);
             spAiList.get(i).addChangeListener(listener);
@@ -99,7 +145,18 @@ public class AIListPanel extends PekaSE2Panel {
         var cbAi = new JComboBox<String>();
         
         var sp = new JSpinner();
-        sp.setModel(new SpinnerListModel(List.of(0))); // Have to provide a list of one int, because SpinnerListModel's empty constructor for some reason provides one empty string???
+
+        if (aiIdList == null) {
+            sp.setModel(new SpinnerListModel(List.of(0))); // Have to provide a list of one int, because SpinnerListModel's empty constructor for some reason provides one empty string???
+        } else {
+            sp.setModel(new SpinnerListModel(aiIdList));
+            
+            // When the aiIdList is set the aiTextList will also be set
+            for (var item : aiTextList) {
+                cbAi.addItem(item);
+            }
+        }
+        
         sp.setEditor(new CustomEditor(sp));
         sp.addChangeListener(new SpinnerListener(cbAi, sp));
         
@@ -108,6 +165,8 @@ public class AIListPanel extends PekaSE2Panel {
         pnl.add(new JLabel((index + 1) + ": "), "width 5%");
         pnl.add(cbAi);
         pnl.add(sp);
+        
+        aiPanelList.add(pnl);
         
         add(pnl);
         
@@ -119,6 +178,9 @@ public class AIListPanel extends PekaSE2Panel {
         
         spAiList.add(sp);
         cbAiList.add(cbAi);
+        
+        revalidate();
+        repaint();
     }
     
     private class SpinnerListener implements ChangeListener {
@@ -137,9 +199,6 @@ public class AIListPanel extends PekaSE2Panel {
         }
     }
     
-    /*
-        I have no idea why I can't use the fucking default editor, but Swing is being extremely annoying and this is the only way I can get the typed values to stay.
-     */
     class CustomEditor extends JFormattedTextField implements ChangeListener {
         
         private final JSpinner spinner;

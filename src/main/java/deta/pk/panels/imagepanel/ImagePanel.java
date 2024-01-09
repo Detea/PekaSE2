@@ -363,12 +363,13 @@ public class ImagePanel extends PekaSE2Panel implements ChangeListener {
     @Override
     public void setProfileData(SpriteProfile profile) {
         cbColors.removeAllItems();
+        var cm = new DefaultComboBoxModel<String>();
         
         for (var col : profile.getColorMap().entrySet()) {
-            cbColors.addItem(col.getValue());
+            cm.addElement(col.getValue());
         }
         
-        if (cbColors.getItemCount() > 0) cbColors.setSelectedIndex(0);
+        cbColors.setModel(cm);
     }
     
     @Override
