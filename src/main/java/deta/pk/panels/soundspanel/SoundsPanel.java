@@ -1,5 +1,6 @@
 package deta.pk.panels.soundspanel;
 
+import deta.pk.FileFormat;
 import deta.pk.listener.UnsavedChangesListener;
 import deta.pk.panels.PekaSE2Panel;
 import deta.pk.profile.SpriteProfile;
@@ -17,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SoundsPanel extends PekaSE2Panel {
+    public static final int SOUND_ENTRY_SPECIAL_1 = 5;
+    public static final int SOUND_ENTRY_SPECIAL_2 = 6;
+    
     private Settings settings;
     
     private List<SoundEntry> soundEntryList;
@@ -28,6 +32,11 @@ public class SoundsPanel extends PekaSE2Panel {
         this.settings = settings;
         
         setup();
+    }
+    
+    public void setFileFormat(FileFormat fileFormat) {
+        soundEntryList.get(SOUND_ENTRY_SPECIAL_1).setVisible(fileFormat == FileFormat.GRETA);
+        soundEntryList.get(SOUND_ENTRY_SPECIAL_2).setVisible(fileFormat == FileFormat.GRETA);
     }
     
     private void setup() {
@@ -49,13 +58,7 @@ public class SoundsPanel extends PekaSE2Panel {
         
         add(pnl, "dock north");
         
-        soundEntryList = new ArrayList<>();
-        
-        soundEntryList.add(new SoundEntry("Damage"));
-        soundEntryList.add(new SoundEntry("Knock out"));
-        soundEntryList.add(new SoundEntry("Attack 1"));
-        soundEntryList.add(new SoundEntry("Attack 2"));
-        soundEntryList.add(new SoundEntry("Random"));
+        generateSoundEntryComponents();
         
         var pnlSoundEntries = new JPanel(new MigLayout("flowy"));
         pnlSoundEntries.setBorder(BorderFactory.createTitledBorder("Sounds:"));
@@ -65,6 +68,22 @@ public class SoundsPanel extends PekaSE2Panel {
         }
         
         add(pnlSoundEntries);
+    }
+    
+    private void generateSoundEntryComponents() {
+        soundEntryList = new ArrayList<>();
+        
+        soundEntryList.add(new SoundEntry("Damage"));
+        soundEntryList.add(new SoundEntry("Knock out"));
+        soundEntryList.add(new SoundEntry("Attack 1"));
+        soundEntryList.add(new SoundEntry("Attack 2"));
+        soundEntryList.add(new SoundEntry("Random"));
+        
+        soundEntryList.add(new SoundEntry("Special 1"));
+        soundEntryList.add(new SoundEntry("Special 2"));
+        
+        soundEntryList.get(SOUND_ENTRY_SPECIAL_1).setVisible(false);
+        soundEntryList.get(SOUND_ENTRY_SPECIAL_2).setVisible(false);
     }
     
     @Override

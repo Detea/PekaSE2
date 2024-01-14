@@ -263,18 +263,20 @@ public class ImagePanel extends PekaSE2Panel implements ChangeListener {
                         // If the color is 255 (Original) the image needs to be reloaded, because it's not possible to reverse the color adjustment.
                         BufferedImage img = null;
                         
-                        try {
-                            img = ImageIO.read(new File(settings.getSpritesPath() + File.separatorChar + tfImage.getText()));
-                            
-                            loadedSprite.setImage(GFXUtils.makeTransparent(img));
-                            loadedSprite.setFramesList(GFXUtils.cutFrames(img, loadedSprite.getFramesAmount(), loadedSprite.getFrameX(), loadedSprite.getFrameY(), loadedSprite.getFrameWidth(), loadedSprite.getFrameHeight()));
-                            spriteSheetPanel.setImage(loadedSprite.getImage());
-                            
-                            loadedSprite.setColor(color);
-                            
-                            spriteEditModel.setSpriteFrames(loadedSprite.getFramesList());
-                        } catch (IOException ex) {
-                            Logger.warn(ex);
+                        if (!tfImage.getText().isEmpty()) {
+                            try {
+                                img = ImageIO.read(new File(settings.getSpritesPath() + File.separatorChar + tfImage.getText()));
+                                
+                                loadedSprite.setImage(GFXUtils.makeTransparent(img));
+                                loadedSprite.setFramesList(GFXUtils.cutFrames(img, loadedSprite.getFramesAmount(), loadedSprite.getFrameX(), loadedSprite.getFrameY(), loadedSprite.getFrameWidth(), loadedSprite.getFrameHeight()));
+                                spriteSheetPanel.setImage(loadedSprite.getImage());
+                                
+                                loadedSprite.setColor(color);
+                                
+                                spriteEditModel.setSpriteFrames(loadedSprite.getFramesList());
+                            } catch (IOException ex) {
+                                Logger.warn(ex);
+                            }
                         }
                     }
                     

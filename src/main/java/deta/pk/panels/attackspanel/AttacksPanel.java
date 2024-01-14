@@ -1,11 +1,14 @@
 package deta.pk.panels.attackspanel;
 
+import deta.pk.FileFormat;
 import deta.pk.listener.UnsavedChangesListener;
 import deta.pk.panels.PekaSE2Panel;
 import deta.pk.profile.SpriteProfile;
 import deta.pk.settings.Settings;
 import deta.pk.sprite.PK2Sprite;
+import deta.pk.sprite.io.PK2SpriteReader;
 import deta.pk.sprite.io.PK2SpriteReader13;
+import deta.pk.sprite.io.PK2SpriteReaderGreta;
 import deta.pk.util.GFXUtils;
 import deta.pk.util.MessageBox;
 import deta.pk.util.SpriteFileChooser;
@@ -39,16 +42,30 @@ public class AttacksPanel extends PekaSE2Panel {
     
     private JComboBox<String> cbDamageType;
     
-    private final SpriteFileChooser fileChooser;
-    private final PK2SpriteReader13 sprReader;
+    private SpriteFileChooser fileChooser;
+    private final PK2SpriteReader13 legacyReader;
+    private final PK2SpriteReaderGreta gretaReader;
+    private PK2SpriteReader spriteReader;
     
     public AttacksPanel(Settings settings) {
         this.settings = settings;
         
-        fileChooser = new SpriteFileChooser(settings);
-        sprReader = new PK2SpriteReader13();
+        legacyReader = new PK2SpriteReader13();
+        gretaReader = new PK2SpriteReaderGreta();
+        
+        spriteReader = legacyReader;
         
         setup();
+    }
+    
+    public void setFileFormat(FileFormat fileFormat) {
+        fileChooser = new SpriteFileChooser(settings, fileFormat);
+        
+        if (fileFormat == FileFormat.GRETA) {
+            spriteReader = gretaReader;
+        } else {
+            spriteReader = legacyReader;
+        }
     }
     
     private void setup() {
@@ -161,7 +178,7 @@ public class AttacksPanel extends PekaSE2Panel {
     }
     
     private void setupAmmoSprite(JTextField tfPath, String ammoSprite, AmmoSpritePreview preview) {
-        var spr = loadAmmoSprite(ammoSprite, sprReader);
+        var spr = loadAmmoSprite(ammoSprite, spriteReader);
         
         if (spr != null) {
             tfPath.setText(ammoSprite);
@@ -170,7 +187,7 @@ public class AttacksPanel extends PekaSE2Panel {
         }
     }
     
-    private PK2Sprite loadAmmoSprite(String ammoFile, PK2SpriteReader13 sprReader) {
+    private PK2Sprite loadAmmoSprite(String ammoFile, PK2SpriteReader sprReader) {
         PK2Sprite sprite = null;
         
         try {

@@ -5,6 +5,8 @@ import deta.pk.listener.UnsavedChangesListener;
 import deta.pk.panels.PekaSE2Panel;
 import deta.pk.panels.ailists.AIListPanel;
 import deta.pk.panels.animation.AnimationsEditPanel;
+import deta.pk.panels.greta.CommandsPanel;
+import deta.pk.panels.greta.GretaPropertiesPanel;
 import deta.pk.panels.imagepanel.ImagePanel;
 import deta.pk.panels.attackspanel.AttacksPanel;
 import deta.pk.panels.propertiespanel.PropertiesPanel;
@@ -20,6 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SpriteEditPane extends JTabbedPane {
+    private static FileFormat fileFormat = FileFormat.GRETA;
+    private static final int LEGACY_PANEL_AMOUNT = 6;
+    private static final int GRETA_PANEL_AMOUNT = 8;
+    
     private Settings settings;
     
     private ImagePanel imagePanel;
@@ -28,12 +34,16 @@ public class SpriteEditPane extends JTabbedPane {
     private SoundsPanel soundsPanel;
     private AttacksPanel attacksPanel;
     private PropertiesPanel propertiesPanel;
+    private GretaPropertiesPanel gretaPropertiesPanel;
+    private CommandsPanel commandsPanel;
     
     private List<PekaSE2Panel> panels;
     
     private SpriteEditPaneModel model = new SpriteEditPaneModel();
     
     private final UnsavedChangesListener unsavedChangesListener = new UnsavedChangesListener(this);
+    
+    private int panelAmount = LEGACY_PANEL_AMOUNT;
     
     public SpriteEditPane(Settings settings) {
         this.settings = settings;
@@ -46,21 +56,50 @@ public class SpriteEditPane extends JTabbedPane {
         
         imagePanel = new ImagePanel(model, settings);
         animationsPanel = new AnimationsEditPanel(settings);
-        aiListPanel = new AIListPanel(settings, FileFormat.GRETA);
+        aiListPanel = new AIListPanel(settings);
         soundsPanel = new SoundsPanel(settings);
         attacksPanel = new AttacksPanel(settings);
         propertiesPanel = new PropertiesPanel(settings);
+        gretaPropertiesPanel = new GretaPropertiesPanel();
+        commandsPanel = new CommandsPanel();
         
         model.addSpriteFramesChangeListener(animationsPanel);
         
+        createLegacyPanels();
+        
+        addUnsavedChangesListener();
+    }
+    
+    public void setFileFormat(FileFormat format) {
+        fileFormat = format;
+        
+        panelAmount = fileFormat == FileFormat.GRETA ? GRETA_PANEL_AMOUNT : LEGACY_PANEL_AMOUNT;
+        aiListPanel.setFileFormat(format);
+        propertiesPanel.setFileFormat(format);
+        soundsPanel.setFileFormat(format);
+        attacksPanel.setFileFormat(format);
+        
+        if (format == FileFormat.GRETA) {
+            addPanel(gretaPropertiesPanel, "Greta Properties");
+            addPanel(commandsPanel, "Commands");
+        } else {
+            removePanel(gretaPropertiesPanel);
+            removePanel(commandsPanel);
+        }
+    }
+    
+    private void createLegacyPanels() {
         addPanel(imagePanel, "Image");
         addPanel(animationsPanel, "Animations");
         addPanel(aiListPanel, "AI", true);
         addPanel(attacksPanel, "Attack");
         addPanel(soundsPanel, "Sounds");
         addPanel(propertiesPanel, "Properties", true);
-        
-        addUnsavedChangesListener();
+    }
+    
+    private void createGretaPanels() {
+        addPanel(gretaPropertiesPanel, "Greta Properties");
+        addPanel(commandsPanel, "Commands");
     }
     
     private void addUnsavedChangesListener() {
@@ -71,8 +110,9 @@ public class SpriteEditPane extends JTabbedPane {
     
     public PK2Sprite setValues() {
         var sprite = new PK2Sprite();
-        for (var p : panels) {
-            p.setValues(sprite);
+        
+        for (int i = 0; i < panelAmount; ++i) {
+            panels.get(i).setValues(sprite);
         }
         
         return sprite;
@@ -85,7 +125,9 @@ public class SpriteEditPane extends JTabbedPane {
         
         model.setSprite(sprite);
         
-        for (var p : panels) {
+        for (int i = 0; i < panelAmount; ++i) {
+            PekaSE2Panel p = panels.get(i);
+            
             if (p != null) {
                 p.setSprite(model.getSprite());
             }
@@ -107,6 +149,12 @@ public class SpriteEditPane extends JTabbedPane {
         panels.add(panel);
     }
     
+    private void removePanel(PekaSE2Panel panel) {
+        panels.remove(panel);
+        
+        remove(panel);
+    }
+    
     private void addPanel(PekaSE2Panel panel, String name) {
         addPanel(panel, name, false);
     }
@@ -126,16 +174,16 @@ public class SpriteEditPane extends JTabbedPane {
     public void resetValues() {
         unsavedChangesListener.setIgnoreChanges(true);
         
-        for (var p : panels) {
-            p.resetValues();
+        for (int i = 0; i < panelAmount; ++i) {
+            panels.get(i).resetValues();
         }
         
         unsavedChangesListener.setIgnoreChanges(false);
     }
     
     public void setSpriteProfile(SpriteProfile profile) {
-        for (var p : panels) {
-            p.setProfileData(profile);
+        for (PekaSE2Panel panel : panels) {
+            panel.setProfileData(profile);
         }
     }
 }

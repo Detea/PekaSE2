@@ -3,15 +3,14 @@ package deta.pk;
 import deta.pk.dialogs.SettingsDialog;
 import deta.pk.dialogs.UnsavedChangesDialog;
 import deta.pk.filefilters.ImageFilter;
-import deta.pk.filefilters.PK2SpriteFilter;
 import deta.pk.panels.SetPathPanel;
 import deta.pk.panels.spriteeditpane.SpriteEditPane;
 import deta.pk.profile.ProfileReader;
+import deta.pk.profile.SpriteProfile;
 import deta.pk.settings.Settings;
 import deta.pk.settings.SettingsIO;
 import deta.pk.sprite.PK2Sprite;
-import deta.pk.sprite.io.PK2SpriteReader13;
-import deta.pk.sprite.io.PK2SpriteWriter13;
+import deta.pk.sprite.io.*;
 import deta.pk.util.GFXUtils;
 import deta.pk.util.MessageBox;
 import deta.pk.util.SpriteFileChooser;
@@ -27,10 +26,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class PekaSE2GUI extends JFrame implements ChangeListener {
     private static final String PROFILES_FOLDER = "profiles";
+    private static final String GRETA_PROFILE = "greta.yml";
+    private static final String LEGACY_PROFILE = "SDL.yml";
     
     private Settings settings = null;
     
@@ -40,8 +40,10 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
     
     private JMenuBar menuBar;
     private JMenu mFile;
-    private JMenuItem miFNew;
-    private JMenuItem miFOpen;
+    private JMenuItem miFNewLegacy;
+    private JMenuItem miFNewGreta;
+    private JMenuItem miFOpenLegacy;
+    private JMenuItem miFOpenGreta;
     private JMenuItem miFSave;
     private JMenuItem miFSaveAs;
     private JMenuItem miQuit;
@@ -56,8 +58,14 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
     
     private SpriteEditPane editPane;
     
-    private PK2SpriteReader13 spriteReader;
-    private PK2SpriteWriter13 spriteWriter;
+    private PK2SpriteReader13 legacySpriteReader;
+    private PK2SpriteWriter13 legacySpriteWriter;
+    
+    private PK2SpriteReaderGreta gretaSpriteReader;
+    private PK2SpriteWriterGreta gretaSpriteWriter;
+    
+    private PK2SpriteReader spriteReader;
+    private PK2SpriteWriter spriteWriter;
     
     private SettingsDialog settingsDialog;
     
@@ -65,9 +73,18 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
     
     private String title;
     
+    private FileFormat fileFormat = FileFormat.LEGACY;
+    
+    private SpriteProfile legacyProfile = null;
+    private SpriteProfile gretaProfile = null;
+    
     public void setup() {
-        spriteReader = new PK2SpriteReader13();
-        spriteWriter = new PK2SpriteWriter13();
+        // TODO Could also initialize these before they're first used
+        legacySpriteReader = new PK2SpriteReader13();
+        legacySpriteWriter = new PK2SpriteWriter13();
+        
+        gretaSpriteReader = new PK2SpriteReaderGreta();
+        gretaSpriteWriter = new PK2SpriteWriterGreta();
         
         settingsDialog = new SettingsDialog();
         
@@ -114,11 +131,12 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
         editPane = new SpriteEditPane(settings);
         editPane.registerUnsavedChangesListener(this);
         
-        loadProfile(settings.getSpriteProfileFile());
+        legacyProfile = loadProfile(LEGACY_PROFILE);
+        setProfile(legacyProfile);
         
         setContentPane(editPane);
         
-        newFile();
+        newFile(FileFormat.LEGACY);
     }
     
     /**
@@ -158,26 +176,68 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
         }
     }
     
-    private void loadSprite(String filename) {
-        if (editPane.unsavedChangesPresent()) {
-            var result = UnsavedChangesDialog.show(this);
-            
-            if (result != JOptionPane.CANCEL_OPTION) {
-                loadSpriteFile(filename);
-            }
-        } else {
-            loadSpriteFile(filename);
-        }
-    }
-    
-    private void loadSpriteFile(String filename) {
-        PK2Sprite sprite = null;
+    private void loadSprite(String filename, FileFormat format) {
+        this.fileFormat = format;
         
-        try {
+        loadFormatProfile(format);
+        
+        if (format == FileFormat.LEGACY) {
             if (!filename.endsWith(".spr")) {
                 filename += ".spr";
             }
             
+            spriteReader = legacySpriteReader;
+            spriteWriter = legacySpriteWriter;
+
+            editPane.setFileFormat(FileFormat.LEGACY);
+        } else if (format == FileFormat.GRETA) {
+            if (!filename.endsWith(".spr2")) {
+                filename += ".spr2";
+            }
+            
+            spriteReader = gretaSpriteReader;
+            spriteWriter = gretaSpriteWriter;
+            
+            editPane.setFileFormat(FileFormat.GRETA);
+        }
+        
+        /*
+        if (editPane.unsavedChangesPresent()) {
+            var result = UnsavedChangesDialog.show(this);
+            
+            if (result != JOptionPane.CANCEL_OPTION) {
+                loadSpriteFile(filename, format);
+            }
+        } else {
+            loadSpriteFile(filename, format);
+        }*/
+        
+        loadSpriteFile(filename, format);
+    }
+    
+    private void loadFormatProfile(FileFormat format) {
+        // Shouldn't load the same profile each time the same fileFormat is loaded, but I don't care
+        if (format == FileFormat.GRETA) {
+            if (gretaProfile != null) {
+                setProfile(gretaProfile);
+            } else {
+                gretaProfile = loadProfile(GRETA_PROFILE);
+                setProfile(gretaProfile);
+            }
+        } else if (format == FileFormat.LEGACY) {
+            if (legacyProfile != null) {
+                setProfile(legacyProfile);
+            } else {
+                legacyProfile = loadProfile(LEGACY_PROFILE);
+                setProfile(legacyProfile);
+            }
+        }
+    }
+    
+    private void loadSpriteFile(String filename, FileFormat format) {
+        PK2Sprite sprite = null;
+        
+        try {
             var file = new File(filename);
             
             sprite = spriteReader.load(file);
@@ -214,20 +274,26 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
         } catch (IOException e) {
             Logger.warn(e, "Unable to load sprite '" + filename + "'!\n");
             
-            JOptionPane.showMessageDialog(null, "Unable to load sprite.\n" + e.getMessage(), "Unable to load sprite!", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Can't read sprite file.\n" + e.getMessage(), "Unable to load sprite!", JOptionPane.ERROR_MESSAGE);
         } catch (UnknownSpriteFormatException e) {
             Logger.warn(e, "Unable to load sprite '" + filename + "'\n");
             
-            MessageBox.showUnknownSpriteError(filename, e.getMessage(), "File is not 1.3 sprite!");
+            MessageBox.showUnknownSpriteError(filename, e.getMessage(), "File is not a recognized format!");
         }
     }
     
-    private void saveSprite(File file) {
+    private void saveSprite(File file, FileFormat format) {
         var sprite = editPane.setValues();
         
         try {
-            if (!file.getName().endsWith(".spr")) {
-                file = new File(file.getAbsolutePath() + ".spr");
+            if (format == FileFormat.LEGACY) {
+                if (!file.getName().endsWith(".spr")) {
+                    file = new File(file.getAbsolutePath() + ".spr");
+                }
+            } else if (format == FileFormat.GRETA) {
+                if (!file.getName().endsWith(".spr2")) {
+                    file = new File(file.getAbsolutePath() + ".spr2");
+                }
             }
             
             spriteWriter.save(sprite, file);
@@ -243,12 +309,17 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
         updateTitle(file.getAbsolutePath(), false);
     }
     
-    private void newFile() {
+    private void newFile(FileFormat fileFormat) {
+        loadFormatProfile(fileFormat);
+        
         editPane.resetValues();
-
+        
+        editPane.setFileFormat(fileFormat);
         editPane.setSprite(new PK2Sprite());
         
-        updateTitle("Unnamed.spr");
+        String newSpriteName = fileFormat == FileFormat.GRETA ? "Unnamed.spr2" : "Unnamed.spr";
+        
+        updateTitle(newSpriteName);
         
         editPane.setUnsavedChangesPresent(false);
     }
@@ -265,14 +336,18 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
         menuBar = new JMenuBar();
         
         mFile = new JMenu("File");
-        miFNew = new JMenuItem("New");
-        miFOpen = new JMenuItem("Open");
+        miFNewLegacy = new JMenuItem("New Legacy");
+        miFNewGreta = new JMenuItem("New Greta");
+        miFOpenLegacy = new JMenuItem("Open Legacy");
+        miFOpenGreta = new JMenuItem("Open Greta");
         miFSave = new JMenuItem("Save");
         miFSaveAs = new JMenuItem("Save As...");
         miQuit = new JMenuItem("Quit");
         
-        mFile.add(miFNew);
-        mFile.add(miFOpen);
+        mFile.add(miFNewLegacy);
+        mFile.add(miFNewGreta);
+        mFile.add(miFOpenLegacy);
+        mFile.add(miFOpenGreta);
         mFile.addSeparator();
         mFile.add(miFSave);
         mFile.add(miFSaveAs);
@@ -286,45 +361,57 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
         mOther.add(mOSettings);
         mOther.add(mOAbout);
         
-        mProfiles = new JMenu("Profiles");
-        addProfileMenuItems();
+        //mProfiles = new JMenu("Profiles");
+        //addProfileMenuItems();
         
         menuBar.add(mFile);
-        menuBar.add(mProfiles);
+        //menuBar.add(mProfiles);
         menuBar.add(mOther);
     }
     
     private void addListeners() {
-        miFNew.addActionListener(e -> {
-            newFile();
+        miFNewLegacy.addActionListener(e -> {
+            newFile(FileFormat.LEGACY);
         });
         
-        miFOpen.addActionListener(e -> {
-            var fc = new SpriteFileChooser(settings);
+        miFNewGreta.addActionListener(e -> {
+            newFile(FileFormat.GRETA);
+        });
+        
+        miFOpenLegacy.addActionListener(e -> {
+            var fc = new SpriteFileChooser(settings, FileFormat.LEGACY);
             
             if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                loadSprite(fc.getSelectedFile().getAbsolutePath());
+                loadSprite(fc.getSelectedFile().getAbsolutePath(), FileFormat.LEGACY);
+            }
+        });
+        
+        miFOpenGreta.addActionListener(e -> {
+            var fc = new SpriteFileChooser(settings, FileFormat.GRETA);
+            
+            if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                loadSprite(fc.getSelectedFile().getAbsolutePath(), FileFormat.GRETA);
             }
         });
         
         miFSave.addActionListener(e -> {
             if (loadedFile == null) {
-                var fc = new SpriteFileChooser(settings);
+                var fc = new SpriteFileChooser(settings, fileFormat);
                 
                 if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                    saveSprite(fc.getSelectedFile());
+                    saveSprite(fc.getSelectedFile(), fileFormat);
                 }
             } else {
-                saveSprite(loadedFile);
+                saveSprite(loadedFile, fileFormat);
             }
         });
         
         miFSaveAs.addActionListener(e -> {
-            var fc = new SpriteFileChooser(settings);
+            var fc = new SpriteFileChooser(settings, fileFormat);
             if (loadedFile != null) fc.setSelectedFile(loadedFile);
             
             if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                saveSprite(fc.getSelectedFile());
+                saveSprite(fc.getSelectedFile(), fileFormat);
             }
         });
         
@@ -369,27 +456,14 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
         }
     }
 
-    private void loadProfile(String file) {
-        var sp = ProfileReader.loadSpriteProfile(PROFILES_FOLDER + File.separatorChar + file);
-        
-        settings.setSpriteProfile(sp);
-        settings.setSpriteProfileFile(file);
+    private SpriteProfile loadProfile(String file) {
+        return ProfileReader.loadSpriteProfile(PROFILES_FOLDER + File.separatorChar + file);
+    }
+    
+    private void setProfile(SpriteProfile profile) {
+        settings.setSpriteProfile(profile);
         
         editPane.setSpriteProfile(settings.getSpriteProfile());
-        
-        if (mProfiles.getItemCount() > 0) {
-            for (int i = 0; i < mProfiles.getItemCount(); i++) {
-                if (mProfiles.getItem(i).getText().equals(settings.getSpriteProfileFile())) {
-                    mProfiles.getItem(i).setSelected(true);
-                } else {
-                    mProfiles.getItem(i).setSelected(false);
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Unable to find profile files!", "No profile files", JOptionPane.ERROR_MESSAGE);
-        }
-        
-        Logger.info("Loaded profile file: " + file);
     }
     
     private void updateTitle(String title, boolean unsavedChanges) {
@@ -413,12 +487,12 @@ public class PekaSE2GUI extends JFrame implements ChangeListener {
     
     public void handleUnsavedChanges() {
         if (loadedFile != null) {
-            saveSprite(loadedFile);
+            saveSprite(loadedFile, fileFormat);
         } else {
-            var fc = new SpriteFileChooser(settings);
+            var fc = new SpriteFileChooser(settings, fileFormat);
             
             if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                saveSprite(fc.getSelectedFile());
+                saveSprite(fc.getSelectedFile(), fileFormat);
             }
         }
     }

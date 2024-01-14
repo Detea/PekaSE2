@@ -17,6 +17,8 @@ public final class SpriteProfile {
     
     private int animationsAmount = 10;
     
+    private String engine;
+    
     public SpriteProfile() {
     }
     
@@ -49,4 +51,6 @@ public final class SpriteProfile {
     }
     
     public int getAnimationsAmount() { return animationsAmount; }
+    
+    public String getEngine() { return engine; }
 }

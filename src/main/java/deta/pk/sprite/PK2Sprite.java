@@ -26,66 +26,112 @@ public class PK2Sprite {
     
     private List<BufferedImage> framesList = new ArrayList<>();
     
-    protected int framesAmount;
+    private int framesAmount;
     
-    protected int animationsAmount; // not used
-    protected int frameRate;
+    private int animationsAmount; // not used
+    private int frameRate;
     
-    protected int frameX;
-    protected int frameY;
+    private int frameX;
+    private int frameY;
     
-    protected int frameWidth;
-    protected int frameHeight;
-    protected int frameDistance;
+    private int frameWidth;
+    private int frameHeight;
+    private int frameDistance;
     
-    protected String name;
-    protected int width;
-    protected int height;
+    private String name;
+    private int width;
+    private int height;
     
-    protected String transformationSpriteFile = "";
-    protected String bonusSpriteFile = "";
+    private String transformationSpriteFile = "";
+    private String bonusSpriteFile = "";
     
-    protected double weight;
+    private double weight;
     
-    protected boolean enemy;
-    protected int energy;
-    protected int damage;
+    private boolean enemy;
+    private int energy;
+    private int damage;
     private int immunityToDamageType;
-    protected int damageType;
-    protected int score;
+    private int damageType;
+    private int score;
     
-    protected int attack1Duration;
-    protected int attack2Duration;
+    private int attack1Duration;
+    private int attack2Duration;
     
-    protected String attack1SpriteFile = "";
-    protected String attack2SpriteFile = "";
+    private String attack1SpriteFile = "";
+    private String attack2SpriteFile = "";
     
-    protected int attackPause;
+    private int attackPause;
     
-    protected int[] aiList = new int[10];
+    private ArrayList<Integer> aiList = new ArrayList<Integer>();
     
-    protected int maxJump;
-    protected double maxSpeed;
+    private int maxJump;
+    private double maxSpeed;
     
-    protected int color; // index to a color in the color palette
+    private int color; // index to a color in the color palette
     
-    protected boolean obstacle;
-    protected boolean boss;
-    protected boolean tileCheck;
+    private boolean obstacle;
+    private boolean boss;   // Not used
+    private boolean tileCheck;
     
-    protected boolean wallUp;
-    protected boolean wallDown;
-    protected boolean wallLeft;
-    protected boolean wallRight;
+    private boolean wallUp;
+    private boolean wallDown;
+    private boolean wallLeft;
+    private boolean wallRight;
     
-    protected int destruction; // effect?
+    private int destruction; // effect?
     
-    protected boolean key;
-    protected boolean shakes;
+    private boolean key;
+    private boolean shakes;
     
-    protected int parallaxFactor;
+    private int parallaxFactor;
     
     private boolean isPlayerSprite;
+    
+    private int bonusAmount;
+    
+    protected boolean randomSoundFrequency;
+    protected boolean glide;        // Sprite can glide, like Pekka
+    protected boolean alwaysBonus; // Always drop bonus
+    
+    protected boolean swim;
+    
+    protected BufferedImage image;
+    
+    // Greta Engine spr2 properties
+    private boolean alwaysActive;
+    private double deadWeight = 0.0;
+    private boolean hasDeadWeight = false;
+    
+    private String commands;
+    
+    public boolean isAlwaysActive() {
+        return alwaysActive;
+    }
+    
+    public void setAlwaysActive(boolean always) {
+        this.alwaysActive = always;
+    }
+    
+    public double getDeadWeight() {
+        return deadWeight;
+    }
+    
+    public void setDeadWeight(double deadWeight) {
+        this.deadWeight = deadWeight;
+        
+        hasDeadWeight = true;
+    }
+    
+    public void setHasDeadWeight(boolean has) {
+        hasDeadWeight = has;
+    }
+    
+    public String getCommands() { return commands; }
+    public void setCommands(String commands) {
+        this.commands = commands;
+    }
+    
+    public boolean hasDeadWeight() { return hasDeadWeight; }
     
     public int getLoadTime() {
         return loadTime;
@@ -114,16 +160,6 @@ public class PK2Sprite {
     public void setBonusAmount(int bonusAmount) {
         this.bonusAmount = bonusAmount;
     }
-    
-    private int bonusAmount;
-    
-    protected boolean randomSoundFrequency;
-    protected boolean glide;        // Sprite can glide, like Pekka
-    protected boolean alwaysBonus; // Always drop bonus
-    
-    protected boolean swim;
-    
-    protected BufferedImage image;
     
     public PK2Sprite() {
         for (int i = 0; i < 7; i++) {
@@ -425,11 +461,11 @@ public class PK2Sprite {
         fireChanges();
     }
     
-    public int[] getAiList() {
+    public ArrayList<Integer> getAiList() {
         return aiList;
     }
     
-    public void setAiList(int[] aiList) {
+    public void setAiList(ArrayList<Integer> aiList) {
         this.aiList = aiList;
         
         fireChanges();
@@ -585,7 +621,7 @@ public class PK2Sprite {
         fireChanges();
     }
     
-    public boolean isGlide() {
+    public boolean canGlide() {
         return glide;
     }
     
@@ -605,7 +641,7 @@ public class PK2Sprite {
         fireChanges();
     }
     
-    public boolean isSwim() {
+    public boolean canSwim() {
         return swim;
     }
     

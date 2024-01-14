@@ -1,14 +1,17 @@
 package deta.pk.util;
 
-import deta.pk.filefilters.PK2SpriteFilter;
+import deta.pk.FileFormat;
+import deta.pk.filefilters.PK2GretaSpriteFilter;
+import deta.pk.filefilters.PK2LegacySpriteFilter;
 import deta.pk.panels.FrameImagePanel;
 import deta.pk.settings.Settings;
+import deta.pk.sprite.io.PK2SpriteReader;
 import deta.pk.sprite.io.PK2SpriteReader13;
+import deta.pk.sprite.io.PK2SpriteReaderGreta;
 import net.miginfocom.swing.MigLayout;
 import org.tinylog.Logger;
 
 import javax.swing.*;
-import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -37,21 +40,43 @@ public class SpriteFileChooser extends JFileChooser implements PropertyChangeLis
     
     private Settings settings;
     
-    public SpriteFileChooser(Settings settings) {
+    private PK2SpriteReader13 legacySpriteReader;
+    private PK2SpriteReaderGreta gretaSpriteReader;
+    private PK2SpriteReader spriteReader;
+    
+    private FileFormat fileFormat = FileFormat.LEGACY;
+    
+    public SpriteFileChooser(Settings settings, FileFormat fileFormat) {
         super(settings.getSpritesPath());
+        
+        this.fileFormat = fileFormat;
+        
+        legacySpriteReader = new PK2SpriteReader13();
+        gretaSpriteReader = new PK2SpriteReaderGreta();
+
+        if (fileFormat == FileFormat.GRETA) {
+            spriteReader = gretaSpriteReader;
+        } else {
+            spriteReader = legacySpriteReader;
+        }
         
         this.settings = settings;
         
-        setup();
+        setup(fileFormat);
         
         setAccessory(previewPanel);
         
         addPropertyChangeListener(this);
     }
     
-    private void setup() {
+    private void setup(FileFormat fileFormat) {
         setDialogTitle("Select a Pekka Kana 2 sprite file...");
-        setFileFilter(new PK2SpriteFilter());
+
+        if (fileFormat == FileFormat.GRETA) {
+            setFileFilter(new PK2GretaSpriteFilter());
+        } else {
+            setFileFilter(new PK2LegacySpriteFilter());
+        }
         
         previewPanel = new JPanel();
         
@@ -97,12 +122,18 @@ public class SpriteFileChooser extends JFileChooser implements PropertyChangeLis
             
             if (selectedFile != null) {
                 try {
-                    if (!selectedFile.getName().endsWith(".spr")) {
-                        selectedFile = new File(selectedFile.getAbsolutePath() + ".spr");
+                    String fileEnding = ".spr";
+                    
+                    if (fileFormat == FileFormat.GRETA) {
+                        fileEnding = ".spr2";
+                    }
+                    
+                    if (!selectedFile.getName().endsWith(fileEnding)) {
+                        selectedFile = new File(selectedFile.getAbsolutePath() + fileEnding);
                     }
                     
                     if (selectedFile.exists()) {
-                        var spr = new PK2SpriteReader13().load(selectedFile);
+                        var spr = spriteReader.load(selectedFile);
                         
                         var spriteSheetFile = new File(settings.getSpritesPath() + File.separatorChar + spr.getImageFile());
                         if (spriteSheetFile.exists()) {

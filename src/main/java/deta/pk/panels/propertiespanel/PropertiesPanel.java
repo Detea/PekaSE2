@@ -1,5 +1,6 @@
 package deta.pk.panels.propertiespanel;
 
+import deta.pk.FileFormat;
 import deta.pk.listener.UnsavedChangesListener;
 import deta.pk.panels.PekaSE2Panel;
 import deta.pk.profile.SpriteProfile;
@@ -14,7 +15,6 @@ import org.tinylog.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -66,22 +66,24 @@ public final class PropertiesPanel extends PekaSE2Panel {
     
     private Settings settings;
     
-    private final SpriteFileChooser fileChooser;
+    private SpriteFileChooser fileChooser;
     
-    private SpritePreview bonusSpritePreview;
-    private SpritePreview transformationSpritePreview;
+    private final SpritePreview bonusSpritePreview;
     
     public PropertiesPanel(Settings settings) {
         this.settings = settings;
         
-        fileChooser = new SpriteFileChooser(settings);
+        fileChooser = new SpriteFileChooser(settings, FileFormat.LEGACY);
         
         bonusSpritePreview = new SpritePreview(null, Map.of("Score", ""));
-        transformationSpritePreview = new SpritePreview();
     
         bonusSpritePreview.setMaxSize(128, 128);
         
         setup();
+    }
+    
+    public void setFileFormat(FileFormat fileFormat) {
+        fileChooser = new SpriteFileChooser(settings, fileFormat);
     }
     
     private void setup() {
@@ -323,8 +325,8 @@ public final class PropertiesPanel extends PekaSE2Panel {
         cbTileCheck.setSelected(sprite.isTileCheck());
         
         cbShakes.setSelected(sprite.isShakes());
-        cbSwim.setSelected(sprite.isSwim());
-        cbGlide.setSelected(sprite.isGlide());
+        cbSwim.setSelected(sprite.canSwim());
+        cbGlide.setSelected(sprite.canGlide());
         
         cbAlwaysBonus.setSelected(sprite.isAlwaysBonus());
         tfBonusSprite.setText(sprite.getBonusSpriteFile());

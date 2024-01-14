@@ -7,7 +7,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public final class PK2SpriteWriter13 {
+public final class PK2SpriteWriter13 extends PK2SpriteWriter {
     public void save(PK2Sprite sprite, File file) throws IOException {
         try (var dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
             dos.write(PK2Sprite.VERSION_13);
@@ -87,7 +87,7 @@ public final class PK2SpriteWriter13 {
             dos.writeInt(Integer.reverseBytes(sprite.getScore()));
             
             for (int i = 0; i < 10; i++) {
-                dos.writeInt(Integer.reverseBytes(sprite.getAiList()[i]));
+                dos.writeInt(Integer.reverseBytes(sprite.getAiList().get((i))));
             }
             
             dos.writeByte(sprite.getMaxJump());
@@ -155,10 +155,10 @@ public final class PK2SpriteWriter13 {
             
             dos.writeInt(Integer.reverseBytes(sprite.getAttackPause()));
             
-            dos.writeBoolean(sprite.isGlide());
+            dos.writeBoolean(sprite.canGlide());
             dos.writeBoolean(sprite.isBoss());
             dos.writeBoolean(sprite.isAlwaysBonus());
-            dos.writeBoolean(sprite.isSwim());
+            dos.writeBoolean(sprite.canSwim());
         }
     }
 }

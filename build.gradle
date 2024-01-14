@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'deta.pk'
-version = '1.2'
+version = '1.3'
 
 repositories {
     mavenCentral()
@@ -24,6 +24,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0-rc2'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0-rc2'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0-rc3'
+
+    implementation 'org.json:json:20231013'
 }
 
 

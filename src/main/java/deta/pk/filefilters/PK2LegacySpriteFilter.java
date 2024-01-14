@@ -3,7 +3,7 @@ package deta.pk.filefilters;
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
 
-public class PK2SpriteFilter extends FileFilter {
+public class PK2LegacySpriteFilter extends FileFilter {
     @Override
     public boolean accept(File f) {
         return f.isDirectory() || f.getName().toLowerCase().endsWith(".spr");

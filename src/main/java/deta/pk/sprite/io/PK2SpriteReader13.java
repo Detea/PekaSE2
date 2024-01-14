@@ -16,7 +16,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PK2SpriteReader13 {
+public class PK2SpriteReader13 extends PK2SpriteReader {
     /**
      * Loads the sprites data and it's image file.
      * @param filename
@@ -142,9 +142,9 @@ public class PK2SpriteReader13 {
         
         spr.setScore(Integer.reverseBytes(in.readInt())); // score
         
-        int[] aiList = new int[10];
+        ArrayList<Integer> aiList = new ArrayList<Integer>();
         for (int i = 0; i < 10; i++) {
-            aiList[i] = Integer.reverseBytes(in.readInt()); // AI
+            aiList.add(Integer.reverseBytes(in.readInt())); // AI
         }
         
         spr.setAiList(aiList);

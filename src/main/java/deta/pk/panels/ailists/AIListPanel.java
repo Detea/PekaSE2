@@ -11,12 +11,9 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.DateFormatter;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
-import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,19 +26,17 @@ public class AIListPanel extends PekaSE2Panel {
     
     private List<Integer> aiIdList;
     private List<String> aiTextList;
-    
-    private final FileFormat fileFormat;
+
+    private JPanel pnlAddAI;
     
     private UnsavedChangesListener unsavedChangesListener;
     
-    public AIListPanel(Settings settings, FileFormat fileFormat) {
+    public AIListPanel(Settings settings) {
         this.settings = settings;
         
         cbAiList = new ArrayList<>();
         spAiList = new ArrayList<>();
         aiPanelList = new ArrayList<>();
-        
-        this.fileFormat = fileFormat;
         
         setup();
     }
@@ -49,49 +44,52 @@ public class AIListPanel extends PekaSE2Panel {
     private void setup() {
         setLayout(new MigLayout("flowy, align center"));
         
-        if (fileFormat == FileFormat.GRETA) {
-            JButton btnAdd = new JButton("Add AI");
-            btnAdd.addActionListener(e -> {
-                addComboBox(cbAiList.size() + 1);
+        JButton btnAdd = new JButton("Add AI");
+        btnAdd.addActionListener(e -> {
+            addComboBox(cbAiList.size() + 1);
             
-                unsavedChangesListener.stateChanged(null);
-            });
-            
-            JButton btnRemove = new JButton("Remove Last");
-            btnRemove.addActionListener(e -> {
-                if (aiPanelList.size() > 1) {
-                    cbAiList.remove((cbAiList.size() - 1));
-                    spAiList.remove((spAiList.size() - 1));
-                    
-                    JPanel pnl = aiPanelList.get(aiPanelList.size() - 1);
-                    remove(pnl);
-                    
-                    aiPanelList.remove(aiPanelList.size() - 1);
-                    
-                    revalidate();
-                    repaint();
-                    
-                    unsavedChangesListener.stateChanged(null);
-                }
-            });
-            
-            JPanel pnlButtons = new JPanel();
-            pnlButtons.setLayout(new MigLayout("flowx"));
-            pnlButtons.add(btnAdd);
-            pnlButtons.add(btnRemove);
-            
-            add(pnlButtons);
-        }
+            unsavedChangesListener.stateChanged(null);
+        });
         
+        JButton btnRemove = new JButton("Remove Last");
+        btnRemove.addActionListener(e -> {
+            if (aiPanelList.size() > 1) {
+                cbAiList.remove((cbAiList.size() - 1));
+                spAiList.remove((spAiList.size() - 1));
+                
+                JPanel pnl = aiPanelList.get(aiPanelList.size() - 1);
+                remove(pnl);
+                
+                aiPanelList.remove(aiPanelList.size() - 1);
+                
+                revalidate();
+                repaint();
+                
+                unsavedChangesListener.stateChanged(null);
+            }
+        });
+        
+        pnlAddAI = new JPanel();
+        pnlAddAI.setLayout(new MigLayout("flowx"));
+        pnlAddAI.add(btnAdd);
+        pnlAddAI.add(btnRemove);
+        add(pnlAddAI);
+        
+        pnlAddAI.setVisible(false);
+
         for (int i = 0; i < 10; i++) {
             addComboBox(i);
         }
     }
 
+    public void setFileFormat(FileFormat format) {
+        pnlAddAI.setVisible(format == FileFormat.GRETA);
+    }
+    
     public void setSprite(PK2Sprite sprite) {
-        for (int i = 0; i < sprite.getAiList().length; i++) {
-            cbAiList.get(i).setSelectedItem(settings.getSpriteProfile().getAiPatternMap().get(sprite.getAiList()[i]));
-            spAiList.get(i).setValue(sprite.getAiList()[i]);
+        for (int i = 0; i < sprite.getAiList().size(); i++) {
+            cbAiList.get(i).setSelectedItem(settings.getSpriteProfile().getAiPatternMap().get(sprite.getAiList().get(i)));
+            spAiList.get(i).setValue(sprite.getAiList().get(i));
         }
     }
     
@@ -108,8 +106,10 @@ public class AIListPanel extends PekaSE2Panel {
     
     @Override
     public void setValues(PK2Sprite sprite) {
+        sprite.getAiList().clear();
+        
         for (int i = 0; i < 10; i++) {
-            sprite.getAiList()[i] = (int) spAiList.get(i).getValue();
+            sprite.getAiList().add((int) spAiList.get(i).getValue());
         }
     }
     
