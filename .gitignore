@@ -17,8 +17,6 @@ out/
 !**/src/test/**/out/
 .idea/
 
-profiles/
-
 settings.dat
 pkse2_log.txt
 
