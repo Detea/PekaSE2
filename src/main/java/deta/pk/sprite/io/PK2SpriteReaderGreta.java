@@ -7,7 +7,6 @@ import deta.pk.util.UnknownSpriteFormatException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.tinylog.Logger;
 
 import javax.swing.*;
@@ -17,8 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class PK2SpriteReaderGreta extends PK2SpriteReader {
     public PK2Sprite load(File filename, String gfxPath) throws IOException, UnknownSpriteFormatException {
@@ -90,7 +87,7 @@ public class PK2SpriteReaderGreta extends PK2SpriteReader {
             
             HashMap<String, Integer> colorMap = new HashMap<String, Integer>();
             colorMap.put("normal", 255);
-            colorMap.put("grey", 0);
+            colorMap.put("gray", 0);
             colorMap.put("blue", 32);
             colorMap.put("red", 64);
             colorMap.put("green", 96);
@@ -114,9 +111,22 @@ public class PK2SpriteReaderGreta extends PK2SpriteReader {
             
             sprite.setFrameRate(json.getInt("frame_rate"));
             sprite.setFramesAmount(json.getInt("frames_number"));
-            
-            sprite.setDestruction(json.getInt("how_destroyed"));
-            
+
+            if(json.has("how_destroyed")){
+                /**
+                 * deprecated
+                 */
+
+                int destruction = json.getInt("how_destroyed");
+                sprite.setDestruction(destruction);
+                sprite.setIndestructible(destruction==0);
+
+            }
+            else{
+                sprite.setDestruction(json.getInt("destruction_effect"));
+                sprite.setIndestructible(json.getBoolean("indestructible"));
+            }
+                        
             sprite.setImmunityToDamageType(json.getInt("immunity_type"));
             
             sprite.setObstacle(json.getBoolean("is_wall"));
@@ -161,20 +171,18 @@ public class PK2SpriteReaderGreta extends PK2SpriteReader {
             sprite.setWeight(json.getDouble("weight"));
             
             if (json.has("commands")) {
-                StringBuilder commandStr = new StringBuilder();
-                
-                for (Object o : json.getJSONArray("commands")) {
-                    commandStr.append(o);
-                    commandStr.append(", ");
-                }
-                
-                sprite.setCommands(commandStr.toString());
+                sprite.setCommands(json.getJSONArray("commands"));
             }
             
             if (json.has("dead_weight")) {
                 sprite.setHasDeadWeight(true);
                 sprite.setDeadWeight(json.getDouble("dead_weight"));
             }
+
+            if(json.has("info_id")){
+                sprite.setInfoID(json.getInt("info_id"));
+            }
+
         } catch (JSONException e) {
             throw new IOException(e.getMessage());
         }

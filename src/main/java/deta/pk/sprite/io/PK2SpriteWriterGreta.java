@@ -5,21 +5,25 @@ import deta.pk.sprite.PK2SpriteAnimation;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class PK2SpriteWriterGreta extends PK2SpriteWriter {
     public void save(PK2Sprite sprite, File file) throws IOException {
         JSONObject json = new JSONObject();
+
+        json.put("version", "2.0");
         
         JSONArray aiArray = new JSONArray();
         for (int ai : sprite.getAiList()) {
-            aiArray.put(ai);
+            if(ai!=0){
+                /**
+                 * Zero AI shouldn't be saved in .spr2
+                 */
+                aiArray.put(ai);
+            }
         }
         
         json.put("ai", aiArray);
@@ -59,7 +63,7 @@ public class PK2SpriteWriterGreta extends PK2SpriteWriter {
         
         String colorString = switch (sprite.getColor()) {
             case 255 -> "normal";
-            case 0 -> "grey";
+            case 0 -> "gray";
             case 32 -> "blue";
             case 64 -> "red";
             case 96 -> "green";
@@ -86,8 +90,9 @@ public class PK2SpriteWriterGreta extends PK2SpriteWriter {
         
         json.put("frame_rate", sprite.getFrameRate());
         json.put("frames_number", sprite.getFramesAmount());
-        
-        json.put("how_destroyed", sprite.getDestruction());
+
+        json.put("destruction_effect", sprite.getDestruction());
+        json.put("indestructible", sprite.isIndestructible());
         
         json.put("immunity_type", sprite.getImmunityToDamageType());
         
@@ -133,6 +138,8 @@ public class PK2SpriteWriterGreta extends PK2SpriteWriter {
         json.put("vibrates", sprite.isShakes());
         
         json.put("weight", sprite.getWeight());
+
+        json.put("info_id", sprite.getInfoID());
         
         if (!sprite.getCommands().isEmpty()) {
             json.put("commands", sprite.getCommands());

@@ -7,9 +7,7 @@ import deta.pk.util.PK2FileUtils;
 import deta.pk.util.UnknownSpriteFormatException;
 import org.tinylog.Logger;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -59,7 +57,7 @@ public class PK2SpriteReader13 extends PK2SpriteReader {
             for (var b : magicNumber) {
                 if (b != 0x0) sb.append((char) b);
             }
-            
+            in.close();
             throw new UnknownSpriteFormatException(sb.toString());
         }
         
@@ -169,8 +167,11 @@ public class PK2SpriteReader13 extends PK2SpriteReader {
         
         in.readByte(); // Padding?
         in.readByte();
+
+        int destruction = Integer.reverseBytes(in.readInt());
         
-        spr.setDestruction(Integer.reverseBytes(in.readInt()));
+        spr.setDestruction(destruction);
+        spr.setIndestructible(destruction==0);
         
         spr.setKey(in.readBoolean());
         
