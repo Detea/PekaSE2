@@ -6,6 +6,9 @@ import deta.pk.profile.SpriteProfile;
 import deta.pk.sprite.PK2Sprite;
 
 import javax.swing.*;
+
+import org.json.JSONArray;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +33,7 @@ public class CommandsPanel extends PekaSE2Panel {
     
     @Override
     public void setSprite(PK2Sprite sprite) {
-        taCommands.setText(sprite.getCommands());
+        taCommands.setText(sprite.getCommands().toString());
     }
     
     @Override
@@ -40,7 +43,8 @@ public class CommandsPanel extends PekaSE2Panel {
     
     @Override
     public void setValues(PK2Sprite sprite) {
-        sprite.setCommands(taCommands.getText());
+
+        sprite.setCommands(new JSONArray(taCommands.getText()));
     }
     
     @Override

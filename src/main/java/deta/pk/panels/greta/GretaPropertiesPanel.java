@@ -13,6 +13,9 @@ public class GretaPropertiesPanel extends PekaSE2Panel {
     
     private JSpinner spDeadWeight;
     private JCheckBox chkUseDeadWeight;
+
+    private JLabel lInfoId;
+    private JSpinner spInfoID;
     
     public GretaPropertiesPanel() {
         setup();
@@ -27,6 +30,10 @@ public class GretaPropertiesPanel extends PekaSE2Panel {
         chkUseDeadWeight.addActionListener(e -> {
             spDeadWeight.setEnabled(chkUseDeadWeight.isSelected());
         });
+
+        lInfoId = new JLabel("Info:");
+        spInfoID = new JSpinner();
+
         
         generateLayout();
     }
@@ -37,6 +44,8 @@ public class GretaPropertiesPanel extends PekaSE2Panel {
         add(chkAlwaysActive);
         add(chkUseDeadWeight);
         add(spDeadWeight);
+        add(lInfoId);
+        add(spInfoID);
     }
     
     @Override
@@ -49,6 +58,8 @@ public class GretaPropertiesPanel extends PekaSE2Panel {
         if (sprite.hasDeadWeight()) {
             spDeadWeight.setValue(sprite.getDeadWeight());
         }
+
+        spInfoID.setValue(sprite.getInfoID());
     }
     
     @Override
@@ -57,6 +68,8 @@ public class GretaPropertiesPanel extends PekaSE2Panel {
         chkUseDeadWeight.setSelected(false);
         spDeadWeight.setEnabled(false);
         spDeadWeight.setValue(0.0);
+
+        spInfoID.setValue(0);
     }
     
     @Override
@@ -69,6 +82,8 @@ public class GretaPropertiesPanel extends PekaSE2Panel {
         if (hasDeadWeight) {
             sprite.setDeadWeight((double) spDeadWeight.getValue());
         }
+
+        sprite.setInfoID((int) spInfoID.getValue());
     }
     
     @Override
@@ -80,5 +95,6 @@ public class GretaPropertiesPanel extends PekaSE2Panel {
     public void setUnsavedChangesListener(UnsavedChangesListener listener) {
         chkAlwaysActive.addActionListener(listener);
         spDeadWeight.addChangeListener(listener);
+        spInfoID.addChangeListener(listener);
     }
 }

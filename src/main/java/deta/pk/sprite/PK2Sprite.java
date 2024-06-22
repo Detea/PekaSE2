@@ -2,6 +2,9 @@ package deta.pk.sprite;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.json.JSONArray;
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +82,7 @@ public class PK2Sprite {
     private boolean wallRight;
     
     private int destruction; // effect?
+    private boolean indestructible = false;
     
     private boolean key;
     private boolean shakes;
@@ -88,6 +92,7 @@ public class PK2Sprite {
     private boolean isPlayerSprite;
     
     private int bonusAmount;
+    private int info_id;
     
     protected boolean randomSoundFrequency;
     protected boolean glide;        // Sprite can glide, like Pekka
@@ -102,7 +107,7 @@ public class PK2Sprite {
     private double deadWeight = 0.0;
     private boolean hasDeadWeight = false;
     
-    private String commands;
+    private JSONArray commands = new JSONArray();
     
     public boolean isAlwaysActive() {
         return alwaysActive;
@@ -126,8 +131,8 @@ public class PK2Sprite {
         hasDeadWeight = has;
     }
     
-    public String getCommands() { return commands; }
-    public void setCommands(String commands) {
+    public JSONArray getCommands() { return commands; }
+    public void setCommands(JSONArray commands) {
         this.commands = commands;
     }
     
@@ -580,6 +585,16 @@ public class PK2Sprite {
         
         fireChanges();
     }
+
+    public boolean isIndestructible(){
+        return this.indestructible;
+    }
+
+    public void setIndestructible(boolean indestructible){
+        this.indestructible = indestructible;
+
+        fireChanges();
+    }
     
     public boolean isKey() {
         return key;
@@ -699,5 +714,15 @@ public class PK2Sprite {
     
     public List<BufferedImage> getFramesList() {
         return framesList;
+    }
+
+    public int getInfoID(){
+        return this.info_id;
+    }
+
+    public void setInfoID(int info_id){
+        this.info_id = info_id;
+
+        fireChanges();
     }
 }

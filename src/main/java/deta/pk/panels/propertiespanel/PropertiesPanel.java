@@ -7,6 +7,7 @@ import deta.pk.profile.SpriteProfile;
 import deta.pk.settings.Settings;
 import deta.pk.sprite.PK2Sprite;
 import deta.pk.sprite.io.PK2SpriteReader13;
+import deta.pk.sprite.io.PK2SpriteReaderGreta;
 import deta.pk.util.GFXUtils;
 import deta.pk.util.SpriteFileChooser;
 import deta.pk.util.UnknownSpriteFormatException;
@@ -35,7 +36,8 @@ public final class PropertiesPanel extends PekaSE2Panel {
     private JSpinner spMaxJump;
     
     private JCheckBox cbEnemy;
-    private JCheckBox cbBoss;
+    //private JCheckBox cbBoss;
+    private JCheckBox cbIndestructible;
     private JCheckBox cbKey;
     
     private JCheckBox cbObstacle;
@@ -102,7 +104,8 @@ public final class PropertiesPanel extends PekaSE2Panel {
         spMaxJump = new JSpinner(new SpinnerNumberModel());
         
         cbEnemy = new JCheckBox("Enemy");
-        cbBoss = new JCheckBox("Boss");
+        //cbBoss = new JCheckBox("Boss");
+        cbIndestructible = new JCheckBox("Indestructible");
         cbKey = new JCheckBox("Key");
         
         cbObstacle = new JCheckBox("Obstacle");
@@ -223,7 +226,7 @@ public final class PropertiesPanel extends PekaSE2Panel {
         var pnl = createTitledPanel("Properties:");
         
         pnl.add(cbEnemy);
-        pnl.add(cbBoss);
+        pnl.add(cbIndestructible);
         pnl.add(cbKey);
         
         return pnl;
@@ -314,7 +317,7 @@ public final class PropertiesPanel extends PekaSE2Panel {
         spMaxJump.setValue(sprite.getMaxJump());
         
         cbEnemy.setSelected(sprite.isEnemy());
-        cbBoss.setSelected(sprite.isBoss());
+        cbIndestructible.setSelected(sprite.isIndestructible());
         cbKey.setSelected(sprite.isKey());
         
         cbObstacle.setSelected(sprite.isObstacle());
@@ -354,7 +357,26 @@ public final class PropertiesPanel extends PekaSE2Panel {
     
     private void updateBonusSpritePreview(String file) {
         try {
-            var bonusSprite = new PK2SpriteReader13().load(new File(settings.getSpritesPath() + File.separatorChar + file));
+
+            PK2Sprite bonusSprite;
+
+            if(file.endsWith(".spr")){
+
+                try{
+                    bonusSprite = new PK2SpriteReader13().load(new File(settings.getSpritesPath() + File.separatorChar + file));
+                }
+
+                catch (IOException | UnknownSpriteFormatException e){
+                    /**
+                     * fallback to ".spr2"
+                     */
+                    file += "2";
+                    bonusSprite = new PK2SpriteReaderGreta().load(new File(settings.getSpritesPath() + File.separatorChar + file));
+                }
+            }
+            else{
+                bonusSprite = new PK2SpriteReaderGreta().load(new File(settings.getSpritesPath() + File.separatorChar + file));
+            }
             
             bonusSpritePreview.setProperty("Score", bonusSprite.getScore());
             
@@ -362,8 +384,9 @@ public final class PropertiesPanel extends PekaSE2Panel {
             var bonusImg = GFXUtils.makeTransparent(img.getSubimage(bonusSprite.getFrameX(), bonusSprite.getFrameY(), bonusSprite.getFrameWidth(), bonusSprite.getFrameHeight()));
             
             bonusSpritePreview.setImage(bonusImg);
-        } catch (IOException | UnknownSpriteFormatException e) {
+        } catch (Exception e) {
             Logger.warn(e, "Unable to load bonus sprite file '" + file +"'!\n");
+            e.printStackTrace();
         }
     }
     
@@ -382,7 +405,7 @@ public final class PropertiesPanel extends PekaSE2Panel {
         spMaxJump.setValue(0);
         
         cbEnemy.setSelected(false);
-        cbBoss.setSelected(false);
+        cbIndestructible.setSelected(false);
         cbKey.setSelected(false);
         
         cbObstacle.setSelected(false);
@@ -435,7 +458,7 @@ public final class PropertiesPanel extends PekaSE2Panel {
         sprite.setMaxSpeed((double) spMaxSpeed.getValue());
         
         sprite.setEnemy(cbEnemy.isSelected());
-        sprite.setBoss(cbBoss.isSelected());
+        sprite.setIndestructible(cbIndestructible.isSelected());
         sprite.setKey(cbKey.isSelected());
         
         sprite.setObstacle(cbObstacle.isSelected());
@@ -521,7 +544,7 @@ public final class PropertiesPanel extends PekaSE2Panel {
         spMaxJump.addChangeListener(listener);
         
         cbEnemy.addActionListener(listener);
-        cbBoss.addActionListener(listener);
+        cbIndestructible.addActionListener(listener);
         cbKey.addActionListener(listener);
         
         cbObstacle.addActionListener(listener);

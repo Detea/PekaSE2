@@ -104,8 +104,18 @@ aiPatternMap:
  101: Background Sprite Moon
  102: Background Sprite Moves to Left
  103: Background Sprite Moves to Right
+
+ 104: AI_BACKGROUND_HORIZONTAL_PARALLAX
+ 105: AI_BACKGROUND_BRING_TO_FRONT
+ 106: AI_BACKGROUND_SEND_TO_BACK
+
  120: Add Time to Clock (Sprite's Load Time)
  121: Make Player Invisible
+
+ 125: AI_BONUS_SUPERMODE
+ 126: AI_BONUS_CANNOT_BE_PUSHED
+
+
  129: Transform if hit
  130: Follow the Player Vertic. and Horiz.
  131: Follow the Player Vertic. and Horiz., if Player is in Front
@@ -123,11 +133,25 @@ aiPatternMap:
  142: AI_THROWABLE_WEAPON2
  143: AI_STATIC_PROJECTILE
 
+ 144: AI_DIE_IF_TOUCHES_WALL
+ 145: AI_NPC_COLLECT_BONUSES
+ 146: AI_DESPAWN_IF_OFFSCREEN
+ 147: AI_HEAL_IF_OFFSCREEN
+ 148: AI_SELF_TRANSFORMATION_RANDOM_PROTOTYPE
+
  150: Max speed player
  151: Max speed player on super
  152: Swimming
  153: Max speed swimming
  170: Egg 2
+
+ 171: AI_NONSTOP_VERTICAL
+
+ 172: AI_START_DOWN
+ 173: AI_START_UP
+ 174: AI_START_LEFT
+ 175: AI_START_RIGHT
+
  201: Info 1
  202: Info 2
  203: Info 3
@@ -147,6 +171,11 @@ aiPatternMap:
  217: Info 17
  218: Info 18
  219: Info 19
+
+ 302: AI_INFO_IF_TOUCHES_PLAYER
+ 303: AI_INFO_IF_DAMAGED
+ 304: AI_INFO_IF_DEAD
+ 305: AI_INFO_IF_BONUS_COLLECTED
 
 damageMap:
  0: No damage
@@ -171,13 +200,15 @@ typeMap:
  3: Ammo
  4: Teleport
  5: Background
+ 6: Foreground
+ 9: Blackhole
 
 destructionType:
  0: None
  100: Animation
 
 destructionEffects:
- 0: Indestructible
+ 0: No effect
  1: Feathers
  2: Grey stars
  3: Blue stars
@@ -201,6 +232,23 @@ destructionEffects:
  21: Violet smoke
  22: Turquoise smoke
  23: Smoke clouds
+
+ 24: Grey splash	
+ 25: Blue splash
+ 26: Red splash
+ 27: Green splash
+ 28: Orange splash
+ 29: Violet splash
+ 30: Turquoise splash
+
+ 31: Grey smokeless explosion	
+ 32: Blue smokeless explosion
+ 33: Red smokeless explosion
+ 34: Green smokeless explosion
+ 35: Orange smokeless explosion
+ 36: Violet smokeless explosion
+ 37: Turquoise smokeless explosion
+
  100: Animation
 
 immunityMap:
@@ -213,10 +261,10 @@ immunityMap:
  6: Snow
  7: Bonus
  8: Electricity
- 9: Self destruction
+ 9: Magic
  10: Squeeze
  11: Smell
- 12: All
+ 12: Supermode
  13: Sting
 
 colorMap:
